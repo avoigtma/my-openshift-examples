@@ -22,8 +22,8 @@ RUN mkdir ${APP_ROOT} \
 # copy required scripts to image
 COPY scripts/*.sh ${APP_ROOT}/.
                                       
-RUN chgrp -R 0 /some/directory \
-    && chmod -R g=u /some/directory \
+RUN chgrp -R 0 ${APP_ROOT} \
+    && chmod -R g=u ${APP_ROOT} \
     && chmod g=u /etc/passwd
 
 # switch to user
