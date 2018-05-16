@@ -13,15 +13,17 @@ ARG APP_ROOT=/appScripts
 #    && yum -y update \
 #    && yum clean all
 
-RUN mkdir ${APP_ROOT} \
+RUN mkdir -p ${APP_ROOT}/bin \
     && chmod g+w ${APP_ROOT}
 
 # expose ports
 # EXPOSE 8080
 
 # copy required scripts to image
-COPY scripts/* ${APP_ROOT}/
-                                      
+COPY scripts/* ${APP_ROOT}/bin/
+
+ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
+           
 RUN chgrp -R 0 ${APP_ROOT} \
     && chmod -R g=u ${APP_ROOT} \
     && chmod g=u /etc/passwd
@@ -32,5 +34,5 @@ WORKDIR ${APP_ROOT}
 
 ENTRYPOINT [ "uid_entrypoint" ]
 
-CMD ["${APP_ROOT}/start.sh"]
+CMD ["${APP_ROOT}/bin/start.sh"]
 
