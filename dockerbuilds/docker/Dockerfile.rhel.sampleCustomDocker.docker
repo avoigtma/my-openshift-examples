@@ -34,5 +34,5 @@ WORKDIR ${APP_ROOT}
 
 ENTRYPOINT [ "uid_entrypoint" ]
 
-CMD ["${APP_ROOT}/bin/start.sh"]
+CMD ["start.sh"]
 
