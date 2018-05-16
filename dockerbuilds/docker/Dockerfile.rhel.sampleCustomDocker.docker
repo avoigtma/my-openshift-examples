@@ -20,7 +20,7 @@ RUN mkdir ${APP_ROOT} \
 # EXPOSE 8080
 
 # copy required scripts to image
-COPY scripts/* ${APP_ROOT}/.
+COPY scripts/* ${APP_ROOT}/
                                       
 RUN chgrp -R 0 ${APP_ROOT} \
     && chmod -R g=u ${APP_ROOT} \
