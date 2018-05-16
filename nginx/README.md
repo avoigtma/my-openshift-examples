@@ -34,5 +34,5 @@ As long as there are no Githooks implemented, changes to the source code reposit
 ### Delete all artefacts
 To delete all artefacts created by the template:  
 
-``$ oc delete bc my-sample-nginx; oc delete dc my-sample-nginx; oc delete route my-sample-nginx; oc delete svc my-sample-nginx; oc delete is my-sample-nginx; oc delete hpa my-sample-nginx``  
+``$ oc delete bc my-sample-nginx; oc delete dc my-sample-nginx; oc delete route my-sample-nginx; oc delete svc my-sample-nginx; oc delete is my-sample-nginx; oc delete hpa my-sample-nginx; oc delete poddisruptionbudget my-sample-nginx``  
 
