@@ -5,7 +5,7 @@
 Run as cluster admin (or user with respective permissions).
 
 ### import nginx image into namespace 'openshift'
-``$ oc import-image rhscl_nginx-112-rhel7 -n openshift --from=registry.access.redhat.com/rhscl/nginx-112-rhel7 --confirm``
+``$ oc import-image rhscl_nginx-112-rhel7 -n openshift --from=registry.access.redhat.com/rhscl/nginx-112-rhel7 --scheduled=true --confirm``
 
 ### import the template into namespace 'openshift'
 if template does not yet exist

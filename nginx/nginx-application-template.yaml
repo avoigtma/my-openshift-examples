@@ -26,8 +26,8 @@ objects:
       app: ${APPLICATION}
     name: ${APPLICATION}
   spec:
-    successfulBuildsHistoryLimit: 5
-    failedBuildsHistoryLimit: 5
+    successfulBuildsHistoryLimit: ${BUILD_SUCCESSFULBUILDSHISTORYLIMIT}
+    failedBuildsHistoryLimit: ${BUILD_FAILEDBUILDSHISTORYLIMIT}
     nodeSelector: null
     output:
       to:
@@ -113,11 +113,11 @@ objects:
             protocol: TCP
           resources:
             limits:
-              cpu: '1'
-              memory: 1000Mi
+              cpu: ${RESOURCE_CPU_LIMITS}
+              memory: ${RESOURCE_MEM_LIMITS}
             requests:
-              cpu: 200m
-              memory: 50Mi
+              cpu: ${RESOURCE_CPU_REQUESTS}
+              memory: ${RESOURCE_MEM_REQUESTS}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
@@ -179,13 +179,13 @@ objects:
       app: ${APPLICATION}
     name: ${APPLICATION}
   spec:
-    maxReplicas: 10
-    minReplicas: 2
+    maxReplicas: ${HPA_MAX_REPLICAS}
+    minReplicas: ${HPA_MIN_REPLICAS}
     scaleTargetRef:
       apiVersion: v1
       kind: DeploymentConfig
       name: ${APPLICATION}
-    targetCPUUtilizationPercentage: 60
+    targetCPUUtilizationPercentage: ${HPA_CPU_UTIL_PERCENTAGE}
 - apiVersion: policy/v1beta1
   kind: PodDisruptionBudget
   metadata:
@@ -227,3 +227,39 @@ parameters:
   displayName: (Initial) Number of Replicas
   name: INITIAL_REPLICAS
   value: '2'
+- description: Build pruning - successfulBuildsHistoryLimit
+  displayName: Build pruning - successfulBuildsHistoryLimit
+  name: BUILD_SUCCESSFULBUILDSHISTORYLIMIT
+  value: '5'
+- description: Build pruning - failedBuildsHistoryLimit
+  displayName: Build pruning - failedBuildsHistoryLimit
+  name: BUILD_FAILEDBUILDSHISTORYLIMIT
+  value: '5'
+- description: Resource limits - cpu - requests
+  displayName: Resource limits - cpu - requests
+  name: RESOURCE_CPU_REQUESTS
+  value: 200m
+- description: Resource limits - cpu - limits
+  displayName: Resource limits - cpu - limits
+  name: RESOURCE_CPU_LIMITS
+  value: '1'
+- description: Resource limits - memory - requests
+  displayName: Resource limits - memory - requests
+  name: RESOURCE_MEM_REQUESTS
+  value: 50Mi
+- description: Resource limits - memory - limits
+  displayName: Resource limits - memory - limits
+  name: RESOURCE_MEM_LIMITS
+  value: 1000Mi
+- description: Autoscale min replicas
+  displayName: Autoscale min replicas
+  name: HPA_MIN_REPLICAS
+  value: '2'
+- description: Autoscale max replicas
+  displayName: Autoscale max replicas
+  name: HPA_MAX_REPLICAS
+  value: '5'
+- description: Autoscale CPU Utilization Percentage
+  displayName: Autoscale CPU Utilization Percentage
+  name: HPA_CPU_UTIL_PERCENTAGE
+  value: '70'
