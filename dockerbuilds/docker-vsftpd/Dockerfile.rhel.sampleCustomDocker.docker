@@ -27,6 +27,7 @@ ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
 RUN chgrp -R 0 ${APP_ROOT} \
     && chmod -R g=u ${APP_ROOT} \
     && chmod g=u /etc/passwd
+    && chmod g=u /etc/vsftpd/*
 
 # switch to user
 USER $USER
