@@ -1,6 +1,6 @@
 FROM rhel7
 
-ARG USER=1001
+ARG USER=1000190000
 ARG APP_ROOT=/appScripts
 
 # install some additional packages (example)
