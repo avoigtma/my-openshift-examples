@@ -1,0 +1,36 @@
+FROM rhel7
+
+ARG USER=1001
+
+# install some additional packages (example)
+RUN INSTALL_PKGS="vsftpd" \
+    && yum-config-manager --enable rhel-server-rhscl-7-rpms &> /dev/null \
+    && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
+    && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
+    && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
+    && rpm -V $INSTALL_PKGS \
+    && yum -y update \
+    && yum clean all
+
+RUN mkdir -p ${APP_ROOT}/bin \
+    && chmod g+w ${APP_ROOT}
+
+# expose ports
+EXPOSE 2121
+
+# copy required scripts to image
+COPY scripts/* ${APP_ROOT}/bin/
+RUN chmod 755 ${APP_ROOT}/bin/*
+ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
+           
+RUN chgrp -R 0 ${APP_ROOT} \
+    && chmod -R g=u ${APP_ROOT} \
+    && chmod g=u /etc/passwd
+
+# switch to user
+USER $USER
+WORKDIR ${APP_ROOT}
+
+ENTRYPOINT [ "uid_entrypoint" ]
+
+CMD ["start.sh"]
