@@ -1,0 +1,21 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-vsftpd
+  labels:
+    name: test-vsftpd
+spec:
+  loadBalancerIP: "10.61.104.110"
+  externalIPs: 
+    - "10.61.104.110"
+  ports:
+  - name: ftp
+    port: 2121
+  - name: ftp1
+    port: 21100
+  - name: ftp2
+    port: 21101
+  type: LoadBalancer
+  selector:
+    name: sample-docker-vsftpd
+
