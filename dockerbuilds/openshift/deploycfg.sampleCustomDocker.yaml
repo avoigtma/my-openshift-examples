@@ -29,7 +29,7 @@ spec:
         - env:
             - name: MY_SAMPLE_ENV_VAR
               value: 'test-value'
-          image: sample-custom-docker-vsftpd:latest
+          image: sample-custom-docker:latest
           imagePullPolicy: IfNotPresent
           name: sample-docker
           resources: {}
@@ -47,6 +47,5 @@ spec:
           - sample-docker
         from:
           kind: ImageStreamTag
-          name: 'sample-custom-docker-vsftpd:latest'
+          name: 'sample-custom-docker:latest'
     - type: ConfigChange
-
