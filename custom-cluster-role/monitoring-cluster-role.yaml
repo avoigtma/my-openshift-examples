@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ClusterRole
+metadata:
+  annotations:
+    openshift.io/description: A user capable of performing monitoring activities for an OpenShift cluster
+    openshift.io/reconcile-protect: "false"
+  name: monitoring-role
+rules:
+- apiGroups:
+  - "events.k8s.io"
+  attributeRestrictions: null
+  resources:
+  - events
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  attributeRestrictions: null
+  resources:
+  - nodes/stats
+  - nodes/metrics
+  - nodes/spec
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  attributeRestrictions: null
+  resources:
+  - resourcequotausages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - "build.openshift.io"
+  attributeRestrictions: null
+  resources:
+  - buildlogs
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs:
+  - "/metrics"
+  attributeRestrictions: null
+  resources:
+  - ""
+  verbs:
+  - get
+
