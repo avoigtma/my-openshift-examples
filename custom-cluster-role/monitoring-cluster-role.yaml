@@ -18,15 +18,26 @@ rules:
   attributeRestrictions: null
   resources:
   - nodes/stats
+  - nodes/status
   - nodes/metrics
   - nodes/spec
   verbs:
   - get
+## unclear: do we need create for 'nodes/stats' like cluster-reader ??
 - apiGroups:
   - ""
   attributeRestrictions: null
   resources:
   - resourcequotausages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - "route.openshift.io"
+  attributeRestrictions: null
+  resources:
+  - routes/status
   verbs:
   - get
   - list
@@ -40,6 +51,30 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - "image.openshift.io"
+  attributeRestrictions: null
+  resources:
+  - imagestreams/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  attributeRestrictions: null
+  resources:
+  - pods
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  attributeRestrictions: null
+  resources:
+  - pods/status
+  verbs:
+  - get
 - nonResourceURLs:
   - "/metrics"
   attributeRestrictions: null
