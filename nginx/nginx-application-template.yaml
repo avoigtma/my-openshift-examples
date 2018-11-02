@@ -18,7 +18,7 @@ metadata:
   name: nginx-application-template
   namespace: openshift
 objects:
-- apiVersion: v1
+- apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
     creationTimestamp: null
@@ -52,7 +52,7 @@ objects:
     - imageChange: {}
       type: ImageChange
     - type: ConfigChange
-- apiVersion: v1
+- apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     creationTimestamp: null
@@ -73,7 +73,7 @@ objects:
       name: latest
       referencePolicy:
         type: ""
-- apiVersion: v1
+- apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
     creationTimestamp: null
@@ -137,7 +137,7 @@ objects:
           namespace: ${NAMESPACE}
       type: ImageChange
     - type: ConfigChange
-- apiVersion: v1
+- apiVersion: route.openshift.io/v1
   kind: Route
   metadata:
     creationTimestamp: null
