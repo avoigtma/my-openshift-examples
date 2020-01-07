@@ -26,8 +26,8 @@ objects:
       app: ${APPLICATION}
     name: ${APPLICATION}
   spec:
-    successfulBuildsHistoryLimit: ${BUILD_SUCCESSFULBUILDSHISTORYLIMIT}
-    failedBuildsHistoryLimit: ${BUILD_FAILEDBUILDSHISTORYLIMIT}
+    successfulBuildsHistoryLimit: ${{BUILD_SUCCESSFULBUILDSHISTORYLIMIT}}
+    failedBuildsHistoryLimit: ${{BUILD_FAILEDBUILDSHISTORYLIMIT}}
     nodeSelector: null
     output:
       to:
@@ -82,7 +82,7 @@ objects:
       app: ${APPLICATION}
     name: ${APPLICATION}
   spec:
-    replicas: ${INITIAL_REPLICAS}
+    replicas: ${{INITIAL_REPLICAS}}
     selector:
       deploymentconfig: ${APPLICATION}
     strategy:
@@ -179,13 +179,13 @@ objects:
       app: ${APPLICATION}
     name: ${APPLICATION}
   spec:
-    maxReplicas: ${HPA_MAX_REPLICAS}
-    minReplicas: ${HPA_MIN_REPLICAS}
+    maxReplicas: ${{HPA_MAX_REPLICAS}}
+    minReplicas: ${{HPA_MIN_REPLICAS}}
     scaleTargetRef:
       apiVersion: v1
       kind: DeploymentConfig
       name: ${APPLICATION}
-    targetCPUUtilizationPercentage: ${HPA_CPU_UTIL_PERCENTAGE}
+    targetCPUUtilizationPercentage: ${{HPA_CPU_UTIL_PERCENTAGE}}
 - apiVersion: policy/v1beta1
   kind: PodDisruptionBudget
   metadata:
