@@ -41,120 +41,123 @@ node('maven') {
     checkout scm
   }
 
-  // The following variables need to be defined at the top level and not inside
-  // the scope of a stage - otherwise they would not be accessible from other stages.
-  // Extract version and other properties from the pom.xml
-  def groupId    = getGroupIdFromPom("pom.xml")
-  def artifactId = getArtifactIdFromPom("pom.xml")
-  def version    = getVersionFromPom("pom.xml")
+  dir('jenkins/multiproject-jenkins') {
 
-  stage('Build war') {
-    echo "Building version ${version}"
+    // The following variables need to be defined at the top level and not inside
+    // the scope of a stage - otherwise they would not be accessible from other stages.
+    // Extract version and other properties from the pom.xml
+    def groupId    = getGroupIdFromPom("pom.xml")
+    def artifactId = getArtifactIdFromPom("pom.xml")
+    def version    = getVersionFromPom("pom.xml")
 
-    sh "${mvnCmd} clean package -DskipTests"
-  }
-  stage('Unit Tests') {
-    echo "Unit Tests"
-    //...
-  }
-  stage('Code Analysis') {
-    echo "Code Analysis"
-    //...
-  }
-  stage('Publish to Nexus') {
-    echo "Publish to Nexus"
-    //...
-  }
+    stage('Build war') {
+      echo "Building version ${version}"
 
-  stage('Build OpenShift Image') {
-      def newTag = "DevCandidate-${version}"
+      sh "${mvnCmd} clean package -DskipTests"
+    }
+    stage('Unit Tests') {
+      echo "Unit Tests"
+      //...
+    }
+    stage('Code Analysis') {
+      echo "Code Analysis"
+      //...
+    }
+    stage('Publish to Nexus') {
+      echo "Publish to Nexus"
+      //...
+    }
+
+    stage('Build OpenShift Image') {
+        def newTag = "DevCandidate-${version}"
+        echo "New Tag: ${newTag}"
+
+        // Replace demo-jenkins-app-dev with the name of your dev project
+        openshiftBuild bldCfg: 'tasks', checkForTriggeredDeployments: 'false', namespace: 'demo-jenkins-app-dev', showBuildLogs: 'false', verbose: 'false', waitTime: '', waitUnit: 'sec'
+        openshiftVerifyBuild bldCfg: 'tasks', checkForTriggeredDeployments: 'false', namespace: 'demo-jenkins-app-dev', verbose: 'false', waitTime: ''
+        openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: 'latest', verbose: 'false'
+    }
+
+    stage('Deploy to Dev') {
+      // Patch the DeploymentConfig so that it points to the latest TestingCandidate-${version} Image.
+      // Replace demo-jenkins-app-dev with the name of your dev project
+      sh "oc project demo-jenkins-app-dev"
+      sh "oc patch dc tasks --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"tasks\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"tasks:DevCandidate-$version\"}}}]}}' -n demo-jenkins-app-dev"
+
+        openshiftDeploy depCfg: 'tasks', namespace: 'demo-jenkins-app-dev', verbose: 'false', waitTime: '', waitUnit: 'sec'
+        openshiftVerifyDeployment depCfg: 'tasks', namespace: 'demo-jenkins-app-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+        openshiftVerifyService namespace: 'demo-jenkins-app-dev', svcName: 'tasks', verbose: 'false'
+    }
+
+    stage('Deploy to Test') {
+        def oldTag = "DevCandidate-${version}"
+        def newTag = "TestingCandidate-${version}"
+        echo "New Tag: ${newTag}"
+      
+      requestUserInput('Release to TEST?')
+
+      openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: oldTag, verbose: 'false'
+
+      // Patch the DeploymentConfig so that it points to the latest TestingCandidate-${version} Image.
+      // Replace demo-jenkins-app-dev with the name of your dev project
+      sh "oc project demo-jenkins-app-test"
+      sh "oc patch dc tasks --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"tasks\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"tasks:TestingCandidate-$version\"}}}]}}' -n demo-jenkins-app-test"
+
+        openshiftDeploy depCfg: 'tasks', namespace: 'demo-jenkins-app-test', verbose: 'false', waitTime: '', waitUnit: 'sec'
+        openshiftVerifyDeployment depCfg: 'tasks', namespace: 'demo-jenkins-app-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+        openshiftVerifyService namespace: 'demo-jenkins-app-test', svcName: 'tasks', verbose: 'false'
+    }
+
+    stage('Integration Test') {
+      // ...
+      def oldTag = "TestingCandidate-${version}"
+      def newTag = "ProdReady-${version}"
       echo "New Tag: ${newTag}"
 
       // Replace demo-jenkins-app-dev with the name of your dev project
-      openshiftBuild bldCfg: 'tasks', checkForTriggeredDeployments: 'false', namespace: 'demo-jenkins-app-dev', showBuildLogs: 'false', verbose: 'false', waitTime: '', waitUnit: 'sec'
-      openshiftVerifyBuild bldCfg: 'tasks', checkForTriggeredDeployments: 'false', namespace: 'demo-jenkins-app-dev', verbose: 'false', waitTime: ''
-      openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: 'latest', verbose: 'false'
-  }
-
-  stage('Deploy to Dev') {
-    // Patch the DeploymentConfig so that it points to the latest TestingCandidate-${version} Image.
-    // Replace demo-jenkins-app-dev with the name of your dev project
-    sh "oc project demo-jenkins-app-dev"
-    sh "oc patch dc tasks --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"tasks\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"tasks:DevCandidate-$version\"}}}]}}' -n demo-jenkins-app-dev"
-
-      openshiftDeploy depCfg: 'tasks', namespace: 'demo-jenkins-app-dev', verbose: 'false', waitTime: '', waitUnit: 'sec'
-      openshiftVerifyDeployment depCfg: 'tasks', namespace: 'demo-jenkins-app-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
-      openshiftVerifyService namespace: 'demo-jenkins-app-dev', svcName: 'tasks', verbose: 'false'
-  }
-
-  stage('Deploy to Test') {
-      def oldTag = "DevCandidate-${version}"
-      def newTag = "TestingCandidate-${version}"
-      echo "New Tag: ${newTag}"
-    
-    requestUserInput('Release to TEST?')
-
-    openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: oldTag, verbose: 'false'
-
-    // Patch the DeploymentConfig so that it points to the latest TestingCandidate-${version} Image.
-    // Replace demo-jenkins-app-dev with the name of your dev project
-    sh "oc project demo-jenkins-app-test"
-    sh "oc patch dc tasks --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"tasks\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"tasks:TestingCandidate-$version\"}}}]}}' -n demo-jenkins-app-test"
-
-      openshiftDeploy depCfg: 'tasks', namespace: 'demo-jenkins-app-test', verbose: 'false', waitTime: '', waitUnit: 'sec'
-      openshiftVerifyDeployment depCfg: 'tasks', namespace: 'demo-jenkins-app-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
-      openshiftVerifyService namespace: 'demo-jenkins-app-test', svcName: 'tasks', verbose: 'false'
-  }
-
-  stage('Integration Test') {
-    // ...
-    def oldTag = "TestingCandidate-${version}"
-    def newTag = "ProdReady-${version}"
-    echo "New Tag: ${newTag}"
-
-    // Replace demo-jenkins-app-dev with the name of your dev project
-    openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: oldTag, verbose: 'false'
-  }
-
-  // Blue/Green Deployment into Production
-  // -------------------------------------
-  def dest   = "tasks-green"
-  def active = ""
-
-  stage('Prep Production Deployment') {
-    // Replace demo-jenkins-app-dev and demo-jenkins-app-test with
-    // your project names
-    sh "oc project demo-jenkins-app-test"
-    sh "oc get route tasks -n demo-jenkins-app-test -o jsonpath='{ .spec.to.name }' > activesvc.txt"
-    active = readFile('activesvc.txt').trim()
-    if (active == "tasks-green") {
-      dest = "tasks-blue"
+      openshiftTag alias: 'false', destStream: 'tasks', destTag: newTag, destinationNamespace: 'demo-jenkins-app-dev', namespace: 'demo-jenkins-app-dev', srcStream: 'tasks', srcTag: oldTag, verbose: 'false'
     }
-    echo "Active svc: " + active
-    echo "Dest svc:   " + dest
-  }
-  stage('Deploy new Version') {
-    echo "Deploying to ${dest}"
 
-    // Patch the DeploymentConfig so that it points to
-    // the latest ProdReady-${version} Image.
-    // Replace demo-jenkins-app-dev and demo-jenkins-app-test with
-    // your project names.
-    sh "oc patch dc ${dest} --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"$dest\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"demo-jenkins-app:ProdReady-$version\"}}}]}}' -n demo-jenkins-app-test"
+    // Blue/Green Deployment into Production
+    // -------------------------------------
+    def dest   = "tasks-green"
+    def active = ""
 
-    openshiftDeploy depCfg: dest, namespace: 'demo-jenkins-app-test', verbose: 'false', waitTime: '', waitUnit: 'sec'
-    openshiftVerifyDeployment depCfg: dest, namespace: 'demo-jenkins-app-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'true', waitTime: '', waitUnit: 'sec'
-    openshiftVerifyService namespace: 'demo-jenkins-app-test', svcName: dest, verbose: 'false'
-  }
-  stage('Switch over to new Version') {
-    input "Switch Production?"
+    stage('Prep Production Deployment') {
+      // Replace demo-jenkins-app-dev and demo-jenkins-app-test with
+      // your project names
+      sh "oc project demo-jenkins-app-test"
+      sh "oc get route tasks -n demo-jenkins-app-test -o jsonpath='{ .spec.to.name }' > activesvc.txt"
+      active = readFile('activesvc.txt').trim()
+      if (active == "tasks-green") {
+        dest = "tasks-blue"
+      }
+      echo "Active svc: " + active
+      echo "Dest svc:   " + dest
+    }
+    stage('Deploy new Version') {
+      echo "Deploying to ${dest}"
 
-    // Replace demo-jenkins-app-test with the name of your
-    // production project
-    sh 'oc patch route tasks -n demo-jenkins-app-test -p \'{"spec":{"to":{"name":"' + dest + '"}}}\''
-    sh 'oc get route tasks -n demo-jenkins-app-test > oc_out.txt'
-    oc_out = readFile('oc_out.txt')
-    echo "Current route configuration: " + oc_out
+      // Patch the DeploymentConfig so that it points to
+      // the latest ProdReady-${version} Image.
+      // Replace demo-jenkins-app-dev and demo-jenkins-app-test with
+      // your project names.
+      sh "oc patch dc ${dest} --patch '{\"spec\": { \"triggers\": [ { \"type\": \"ImageChange\", \"imageChangeParams\": { \"containerNames\": [ \"$dest\" ], \"from\": { \"kind\": \"ImageStreamTag\", \"namespace\": \"demo-jenkins-app-dev\", \"name\": \"demo-jenkins-app:ProdReady-$version\"}}}]}}' -n demo-jenkins-app-test"
+
+      openshiftDeploy depCfg: dest, namespace: 'demo-jenkins-app-test', verbose: 'false', waitTime: '', waitUnit: 'sec'
+      openshiftVerifyDeployment depCfg: dest, namespace: 'demo-jenkins-app-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'true', waitTime: '', waitUnit: 'sec'
+      openshiftVerifyService namespace: 'demo-jenkins-app-test', svcName: dest, verbose: 'false'
+    }
+    stage('Switch over to new Version') {
+      input "Switch Production?"
+
+      // Replace demo-jenkins-app-test with the name of your
+      // production project
+      sh 'oc patch route tasks -n demo-jenkins-app-test -p \'{"spec":{"to":{"name":"' + dest + '"}}}\''
+      sh 'oc get route tasks -n demo-jenkins-app-test > oc_out.txt'
+      oc_out = readFile('oc_out.txt')
+      echo "Current route configuration: " + oc_out
+    }
   }
 }
 
