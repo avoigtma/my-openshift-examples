@@ -8,4 +8,4 @@ spec:
       uri: "https://github.com/avoigtma/my-openshift-examples"
   strategy:
     jenkinsPipelineStrategy:
-      jenkinsfilePath: nodejs-jenkins/Jenkinsfile
+      jenkinsfilePath: jenkins/nodejs-jenkins/Jenkinsfile
