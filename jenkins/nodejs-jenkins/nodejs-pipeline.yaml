@@ -1,0 +1,11 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  name: "nodejs-pipeline"
+spec:
+  source:
+    git:
+      uri: "https://github.com/avoigtma/my-openshift-examples"
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfilePath: nodejs-jenkins/Jenkinsfile
