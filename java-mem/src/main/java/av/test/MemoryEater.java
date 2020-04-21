@@ -33,7 +33,7 @@ public class MemoryEater
     long iteration = 0;
     while (true)
     {
-      byte b[] = new byte[1048576];
+      byte b[] = new byte[10485760];
       memVector.add(b);
       System.out.println("iteration[" + ++iteration + "] - free memory: " + rt.freeMemory());
       System.out.flush();
