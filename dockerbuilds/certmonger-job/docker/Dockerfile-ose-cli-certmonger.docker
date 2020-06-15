@@ -1,0 +1,6 @@
+FROM registry.redhat.io/openshift4/ose-cli
+
+RUN yum install -y certmonger
+
+
+
