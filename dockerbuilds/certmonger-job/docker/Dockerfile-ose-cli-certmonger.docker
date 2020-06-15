@@ -24,7 +24,7 @@ RUN mkdir -p ${APP_ROOT}/bin \
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz
 RUN tar -xf openshift-client-linux-$VERSION.tar.gz
 RUN mv -v {oc,kubectl} ${APP_ROOT}/bin
-RUN rm -f tar -xf openshift-client-linux-$VERSION.tar.gz
+RUN rm -f openshift-client-linux-$VERSION.tar.gz
 
 
 RUN chmod 755 ${APP_ROOT}/bin/*
