@@ -1,6 +1,8 @@
 FROM registry.redhat.io/openshift4/ose-cli
 
-RUN yum install -y certmonger
+RUN yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
+    && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
+    && yum install -y certmonger
 
 
 
