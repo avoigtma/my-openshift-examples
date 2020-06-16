@@ -1,4 +1,4 @@
-FROM ubi
+FROM ubi7/ubi
 
 # change to ENV variable
 ARG VERSION=4.4.5
