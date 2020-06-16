@@ -7,7 +7,7 @@ ARG USER=1001
 ARG APP_ROOT=/tools
 
 # install some additional packages (example)
-RUN INSTALL_PKGS="unzip wget net-tools less" \
+RUN INSTALL_PKGS="unzip wget net-tools less certmonger" \
     && yum-config-manager --enable rhel-server-rhscl-7-rpms &> /dev/null \
     && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
     && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
