@@ -1,4 +1,4 @@
-FROM rhel7
+FROM centos:8
 
 # change to ENV variable
 ARG VERSION=4.4.5
