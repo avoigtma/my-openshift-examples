@@ -3,7 +3,7 @@ FROM centos:8
 # change to ENV variable
 ARG VERSION=4.4.5
 
-ARG USER=1001
+ARG USER=root
 ARG APP_ROOT=/tools
 
 RUN /usr/sbin/init
@@ -35,6 +35,7 @@ RUN chmod 755 ${APP_ROOT}/bin/* \
     && chmod g=u /etc/passwd
 
 # switch to user
+ARG USER=1001
 USER $USER
 WORKDIR ${APP_ROOT}
 
