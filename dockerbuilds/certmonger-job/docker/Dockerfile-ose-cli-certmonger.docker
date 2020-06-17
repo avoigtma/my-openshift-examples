@@ -8,9 +8,6 @@ ARG APP_ROOT=/tools
 
 # install some additional packages (example)
 RUN INSTALL_PKGS="unzip wget net-tools less certmonger" \
-    && yum-config-manager --enable rhel-server-rhscl-7-rpms &> /dev/null \
-    && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
-    && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
     && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
     && rpm -V $INSTALL_PKGS \
     && yum -y update \
@@ -20,7 +17,7 @@ RUN mkdir -p ${APP_ROOT}/bin \
     && chmod g+w ${APP_ROOT}
 
 # copy required scripts to image
-#COPY scripts/* ${APP_ROOT}/bin/
+COPY scripts/* ${APP_ROOT}/bin/
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz
 RUN tar -xf openshift-client-linux-$VERSION.tar.gz
 RUN mv -v {oc,kubectl} ${APP_ROOT}/bin
@@ -40,5 +37,4 @@ WORKDIR ${APP_ROOT}
 
 ENTRYPOINT [ "uid_entrypoint" ]
 
-CMD ["start.sh"]
 
