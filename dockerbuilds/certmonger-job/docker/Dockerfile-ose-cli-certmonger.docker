@@ -2,39 +2,35 @@ FROM centos:8
 
 # change to ENV variable
 ARG VERSION=4.4.5
-
-ARG USER=root
+ARG USER=1001
 ARG APP_ROOT=/tools
+
+USER root
 
 ENV container=oci
 
-#Systemd
-ENV container=docker
-RUN yum -y update; yum clean all
-RUN yum -y install systemd; yum clean all; \
-	(cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-	rm -f /lib/systemd/system/multi-user.target.wants/*;\
-	rm -f /etc/systemd/system/*.wants/*;\
-	rm -f /lib/systemd/system/local-fs.target.wants/*; \
-	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-	rm -f /lib/systemd/system/basic.target.wants/*;\
-	rm -f /lib/systemd/system/anaconda.target.wants/*;
-VOLUME ["/sys/fs/cgroup"]
-STOPSIGNAL SIGRTMIN+3
-
-
-# install some additional packages (example)
-RUN INSTALL_PKGS="unzip wget net-tools less certmonger" \
+# install some additional packages
+RUN INSTALL_PKGS="systemd wget net-tools less certmonger" \
     && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
     && rpm -V $INSTALL_PKGS \
     && yum -y update \
-    && yum clean all
+    && yum clean all \
+	&& (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done) \
+	&& rm -f /lib/systemd/system/multi-user.target.wants/*\
+	&& rm -f /etc/systemd/system/*.wants/*\
+	&& rm -f /lib/systemd/system/local-fs.target.wants/* \
+	&& rm -f /lib/systemd/system/sockets.target.wants/*udev* \
+	&& rm -f /lib/systemd/system/sockets.target.wants/*initctl* \
+	&& rm -f /lib/systemd/system/basic.target.wants/* \
+	&& rm -f /lib/systemd/system/anaconda.target.wants/*
+
+VOLUME ["/sys/fs/cgroup"]
+STOPSIGNAL SIGRTMIN+3
 
 RUN mkdir -p ${APP_ROOT}/bin \
     && chmod g+w ${APP_ROOT}
 
-# copy required scripts to image
+# copy required scripts to image and install 'oc' client
 COPY scripts/* ${APP_ROOT}/bin/
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz \
     && tar -xf openshift-client-linux-$VERSION.tar.gz \
@@ -49,7 +45,6 @@ RUN chmod 755 ${APP_ROOT}/bin/* \
     && chmod g=u /etc/passwd
 
 # switch to user
-ARG USER=1001
 USER $USER
 WORKDIR ${APP_ROOT}
 
