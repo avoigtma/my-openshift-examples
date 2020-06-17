@@ -6,6 +6,8 @@ ARG VERSION=4.4.5
 ARG USER=1001
 ARG APP_ROOT=/tools
 
+RUN /usr/sbin/init
+
 # install some additional packages (example)
 RUN INSTALL_PKGS="unzip wget net-tools less certmonger" \
     && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
@@ -18,16 +20,17 @@ RUN mkdir -p ${APP_ROOT}/bin \
 
 # copy required scripts to image
 COPY scripts/* ${APP_ROOT}/bin/
-RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz
-RUN tar -xf openshift-client-linux-$VERSION.tar.gz
-RUN mv -v {oc,kubectl} ${APP_ROOT}/bin
-RUN rm -f openshift-client-linux-$VERSION.tar.gz
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz \
+    && tar -xf openshift-client-linux-$VERSION.tar.gz \
+    && mv -v {oc,kubectl} ${APP_ROOT}/bin \
+    && rm -f openshift-client-linux-$VERSION.tar.gz
 
 
-RUN chmod 755 ${APP_ROOT}/bin/*
+RUN 
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
            
-RUN chgrp -R 0 ${APP_ROOT} \
+RUN chmod 755 ${APP_ROOT}/bin/* \
+    && chgrp -R 0 ${APP_ROOT} \
     && chmod -R g=u ${APP_ROOT} \
     && chmod g=u /etc/passwd
 
