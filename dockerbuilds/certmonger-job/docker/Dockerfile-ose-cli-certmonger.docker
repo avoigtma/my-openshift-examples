@@ -6,6 +6,8 @@ ARG VERSION=4.4.5
 ARG USER=root
 ARG APP_ROOT=/tools
 
+ENV container=oci
+
 #Systemd
 ENV container=docker
 RUN yum -y update; yum clean all
@@ -53,5 +55,5 @@ WORKDIR ${APP_ROOT}
 
 ENTRYPOINT [ "uid_entrypoint" ]
 
-CMD ["/usr/sbin/init"]
+CMD ["/usr/lib/systemd/systemd --system --unit=basic.target"]
 
