@@ -39,8 +39,6 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/open
     && mv -v {oc,kubectl} ${APP_ROOT}/bin \
     && rm -f openshift-client-linux-$VERSION.tar.gz
 
-
-RUN 
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
            
 RUN chmod 755 ${APP_ROOT}/bin/* \
