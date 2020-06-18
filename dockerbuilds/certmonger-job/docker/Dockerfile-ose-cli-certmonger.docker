@@ -1,7 +1,7 @@
 FROM centos:8
 
 # change to ENV variable
-ARG VERSION=4.4.5
+ARG OCVERSION=4.4.5
 ARG USER=1001
 ARG APP_ROOT=/tools
 
@@ -10,19 +10,19 @@ USER root
 ENV container=oci
 
 # install some additional packages
-RUN INSTALL_PKGS="systemd wget net-tools less certmonger" \
-    && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
-    && rpm -V $INSTALL_PKGS \
-    && yum -y update \
-    && yum clean all \
-	&& (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done) \
-	&& rm -f /lib/systemd/system/multi-user.target.wants/*\
-	&& rm -f /etc/systemd/system/*.wants/*\
-	&& rm -f /lib/systemd/system/local-fs.target.wants/* \
-	&& rm -f /lib/systemd/system/sockets.target.wants/*udev* \
-	&& rm -f /lib/systemd/system/sockets.target.wants/*initctl* \
-	&& rm -f /lib/systemd/system/basic.target.wants/* \
-	&& rm -f /lib/systemd/system/anaconda.target.wants/*
+RUN INSTALL_PKGS="systemd wget net-tools less certmonger"; \
+    yum install -q -y --setopt=tsflags=nodocs $INSTALL_PKGS; \
+    rpm -V $INSTALL_PKGS; \
+    yum -y -q update; \
+    yum -q clean all; \
+	(cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+	rm -f /lib/systemd/system/multi-user.target.wants/*; \
+	rm -f /etc/systemd/system/*.wants/*; \
+	rm -f /lib/systemd/system/local-fs.target.wants/*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+	rm -f /lib/systemd/system/basic.target.wants/*; \
+	rm -f /lib/systemd/system/anaconda.target.wants/*
 
 VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL SIGRTMIN+3
@@ -32,7 +32,7 @@ RUN mkdir -p ${APP_ROOT}/bin \
 
 # copy required scripts to image and install 'oc' client
 COPY scripts/* ${APP_ROOT}/bin/
-RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$VERSION/openshift-client-linux-$VERSION.tar.gz \
+RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCVERSION/openshift-client-linux-$OCVERSION.tar.gz \
     && tar -xf openshift-client-linux-$VERSION.tar.gz \
     && mv -v {oc,kubectl} ${APP_ROOT}/bin \
     && rm -f openshift-client-linux-$VERSION.tar.gz
