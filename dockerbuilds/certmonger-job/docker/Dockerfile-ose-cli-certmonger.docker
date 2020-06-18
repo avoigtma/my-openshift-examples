@@ -32,7 +32,7 @@ RUN mkdir -p ${APP_ROOT}/bin \
 
 # copy required scripts to image and install 'oc' client
 COPY scripts/* ${APP_ROOT}/bin/
-RUN wget -p https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCVERSION/openshift-client-linux-$OCVERSION.tar.gz \
+RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OCVERSION/openshift-client-linux-$OCVERSION.tar.gz \
     && tar -xf openshift-client-linux-$OCVERSION.tar.gz \
     && mv -v {oc,kubectl} ${APP_ROOT}/bin \
     && rm -f openshift-client-linux-$OCVERSION.tar.gz
