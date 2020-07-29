@@ -1,4 +1,4 @@
-FROM ubi
+FROM ubi7/ubi
 
 ARG USER=1001
 ARG APP_ROOT=/appScripts
