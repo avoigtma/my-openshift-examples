@@ -7,8 +7,9 @@ ARG APP_ROOT=/appScripts
 RUN INSTALL_PKGS="unzip wget net-tools less jq git" \
     && yum repolist --disablerepo=* \
     && yum-config-manager --disable \* > /dev/null \
-    && yum-config-manager --enable rhel-7-server-rpms > /dev/null \
+    && yum-config-manager --enable \*ubi\* &> /dev/null \
 # enable any other repos if needed, e.g.
+#    && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
 #    && yum-config-manager --enable rhel-server-rhscl-7-rpms &> /dev/null \
 #    && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
 #    && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
