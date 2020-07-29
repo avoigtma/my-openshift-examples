@@ -8,7 +8,7 @@ RUN INSTALL_PKGS="unzip wget net-tools less" \
     && yum-config-manager --enable rhel-server-rhscl-7-rpms &> /dev/null \
     && yum-config-manager --enable rhel-7-server-rpms &> /dev/null \
     && yum-config-manager --enable rhel-7-server-optional-rpms &> /dev/null \
-    && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
+    && yum install -y --disableplugin=subscription-manager --setopt=tsflags=nodocs $INSTALL_PKGS \
     && rpm -V $INSTALL_PKGS \
     && yum -y update \
     && yum clean all
