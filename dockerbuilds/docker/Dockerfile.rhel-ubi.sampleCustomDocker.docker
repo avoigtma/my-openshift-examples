@@ -4,7 +4,7 @@ ARG USER=1001
 ARG APP_ROOT=/appScripts
 
 # install some additional packages (example)
-RUN INSTALL_PKGS="unzip wget net-tools less jq git" \
+RUN INSTALL_PKGS="unzip wget net-tools less git" \
     && yum repolist --disablerepo=* \
     && yum-config-manager --disable \* > /dev/null \
     && yum-config-manager --enable \*ubi\* &> /dev/null \
