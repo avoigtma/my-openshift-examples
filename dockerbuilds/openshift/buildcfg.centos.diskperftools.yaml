@@ -2,13 +2,13 @@ apiVersion: v1
 kind: BuildConfig
 metadata:
   labels:
-    build: sample-custom-docker
-  name: sample-custom-docker
+    build: centos-diskperftools
+  name: centos-diskperftools
 spec:
   output:
     to:
       kind: ImageStreamTag
-      name: sample-custom-docker:latest
+      name: centos-diskperftools:latest
   postCommit: {}
   resources: {}
   runPolicy: Serial
@@ -22,7 +22,7 @@ spec:
       dockerfilePath: Dockerfile.rhel.sampleCustomDocker.docker
       from:
         kind: ImageStreamTag
-        name: rhel7:latest
+        name: centos:latest
         namespace: openshift
       noCache: true
   triggers:
