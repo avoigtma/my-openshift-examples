@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  labels:
+    build: rsyslog-rhel-ubi
+  name: rsyslog-rhel-ubi
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: rsyslog-rhel-ubi:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/avoigtma/my-openshift-examples.git
+    contextDir: dockerbuilds/docker
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile.rhel-ubi.sampleCustomDocker.docker
+      from:
+        kind: ImageStreamTag
+        name: ubi:latest
+        namespace: openshift
+      noCache: true
+  triggers:
+  - imageChange:
+    type: ImageChange
+  - type: ConfigChange

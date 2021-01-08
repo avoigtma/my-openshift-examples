@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rsyslog-rhel-ubi
+  labels:
+    name: rsyslog-rhel-ubi
+spec:
+  ports:
+  - name: rsyslog
+    port: 514
+  selector:
+    name: rsyslog-rhel-ubi
+  sessionAffinity: None
+  type: ClusterIP
