@@ -7,6 +7,8 @@ RUN INSTALL_PKGS="net-tools less wget rsyslog" \
     && yum install --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos $INSTALL_PKGS -y \
     && rm -rf /var/cache/yum
 
+ARG USER=1001
+ARG APP_ROOT=/appScripts
 
 RUN mkdir -p ${APP_ROOT}/bin \
     && chmod g+w ${APP_ROOT}
