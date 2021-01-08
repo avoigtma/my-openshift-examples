@@ -26,7 +26,7 @@ RUN chgrp -R 0 ${APP_ROOT} \
     && chmod g=u /etc/passwd
 
 # switch to user
-USER $USER
+#USER $USER
 WORKDIR ${APP_ROOT}
 
 ENTRYPOINT [ "uid_entrypoint" ]
