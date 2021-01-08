@@ -19,7 +19,7 @@ spec:
   strategy:
     type: Docker
     dockerStrategy:
-      dockerfilePath: Dockerfile.rhel-ubi.sampleCustomDocker.docker
+      dockerfilePath: Dockerfile.rsyslog-rhel-ubi.docker
       from:
         kind: ImageStreamTag
         name: ubi:latest
